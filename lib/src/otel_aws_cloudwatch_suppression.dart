@@ -12,4 +12,5 @@ T runWithoutAwsCloudWatchInstrumentation<T>(T Function() body) =>
 
 Future<T> runWithoutAwsCloudWatchInstrumentationAsync<T>(
   Future<T> Function() body,
-) => runZoned(body, zoneValues: {_key: true});
+) =>
+    runZoned(body, zoneValues: {_key: true});
