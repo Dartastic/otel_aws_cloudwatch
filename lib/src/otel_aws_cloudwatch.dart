@@ -6,6 +6,7 @@ import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 import 'otel_aws_cloudwatch_suppression.dart';
 
 class AwsCloudWatchResult {
+  /// Creates a result.
   const AwsCloudWatchResult({
     this.namespace,
     this.logGroup,
@@ -33,8 +34,13 @@ class AwsCloudWatchResult {
   final String? errorMessage;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class AwsCloudWatchCallResult<T> {
+  /// Creates a call result.
   const AwsCloudWatchCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final AwsCloudWatchResult? result;
 }
