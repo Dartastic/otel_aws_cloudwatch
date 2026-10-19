@@ -1,7 +1,7 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_aws_cloudwatch_suppression.dart';
 
@@ -42,73 +42,75 @@ class AwsCloudWatchCallResult<T> {
 Future<T> tracedAwsCloudWatch<T>({
   required String operation,
   required Future<AwsCloudWatchCallResult<T>> Function() invoke,
-  Tracer? tracer,
+  APITracer? tracer,
 }) async {
   if (awsCloudWatchInstrumentationSuppressed()) {
     final r = await invoke();
     return r.value;
   }
-  final t = tracer ?? OTel.tracerProvider().getTracer('otel_aws_cloudwatch');
+  final t = tracer ?? OTelAPI.tracerProvider().getTracer('otel_aws_cloudwatch');
   final span = t.startSpan('cloudwatch $operation', kind: SpanKind.client);
   try {
     span.addAttributes(
-        OTel.attributes([OTel.attributeString('rpc.system', 'aws-api')]));
-    span.addAttributes(
-        OTel.attributes([OTel.attributeString('rpc.service', 'CloudWatch')]));
+        OTelAPI.attributes([OTelAPI.attributeString('rpc.system', 'aws-api')]));
+    span.addAttributes(OTelAPI.attributes(
+        [OTelAPI.attributeString('rpc.service', 'CloudWatch')]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.namespace != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('aws.cloudwatch.namespace', res.namespace!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('aws.cloudwatch.namespace', res.namespace!)
         ]));
       }
       if (res.logGroup != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('aws.log.group.name', res.logGroup!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('aws.log.group.name', res.logGroup!)]));
       }
       if (res.logStream != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('aws.log.stream.name', res.logStream!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('aws.log.stream.name', res.logStream!)]));
       }
       if (res.metricName != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('aws.cloudwatch.metric.name', res.metricName!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('aws.cloudwatch.metric.name', res.metricName!)
         ]));
       }
       if (res.statistic != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('aws.cloudwatch.statistic', res.statistic!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('aws.cloudwatch.statistic', res.statistic!)
         ]));
       }
       if (res.alarmName != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('aws.cloudwatch.alarm.name', res.alarmName!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('aws.cloudwatch.alarm.name', res.alarmName!)
         ]));
       }
       if (res.alarmState != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('aws.cloudwatch.alarm.state', res.alarmState!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('aws.cloudwatch.alarm.state', res.alarmState!)
         ]));
       }
       if (res.region != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('cloud.region', res.region!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('cloud.region', res.region!)]));
       }
       if (res.statusCode != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeInt('http.response.status_code', res.statusCode!)
+        ]));
       }
       if (res.errorCode != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('cloudwatch.error.code', res.errorCode!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('cloudwatch.error.code', res.errorCode!)
+        ]));
       }
       final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400);
       if (fail) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString(
-            ErrorResource.errorType.key,
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
+            ErrorAttributes.errorType.key,
             res.errorCode ?? 'cloudwatch.error',
           )
         ]));
